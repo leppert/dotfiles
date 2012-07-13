@@ -24,7 +24,6 @@ access to the system-wide spelling infrastructure.
     * clojure-mode-20120531
     * clojurescript-mode-20120521
     * coffee-mode-20120522
-    * color-theme-sanityinc-tomorrow-20120531
     * css-mode-1.0
     * elisp-slime-nav-20111111
     * find-file-in-project-20110903
@@ -47,7 +46,6 @@ access to the system-wide spelling infrastructure.
     * slime-20120612
     * slime-ritz-20120612
     * smex-20120301
-    * solarized-theme-20120613
     * starter-kit-20120518
     * starter-kit-eshell-20120316
     * starter-kit-js-20110930
@@ -56,4 +54,8 @@ access to the system-wide spelling infrastructure.
     * twilight-theme-20120412
     * undo-tree-20120511
     * yaml-mode-20120227
+
+* [Expand region](https://github.com/emacsmirror/expand-region), which
+  doesn't seem to be in ELPA yet. It's worth watching video to see how
+  handy this is.
 
