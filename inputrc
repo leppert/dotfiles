@@ -1,0 +1,27 @@
+# behavior
+set completion-ignore-case on
+set show-all-if-ambiguous on
+set page-completions off
+
+# keys
+set keymap emacs
+set editing-mode emacs
+
+# emacs style
+"\C-u": universal-argument
+
+# OSX system key bindings dup'd here and in emacs
+# option+left arrow
+"\e[1;9D": backward-word
+
+# option+right arrow
+"\e[1;9C": forward-word
+
+# alt+d delete word right
+"∂": kill-word
+
+# option+/ hippie complete in emacs
+"÷": menu-complete
+
+# frequent fat finger of CTRL-A
+"á": beginning-of-line
