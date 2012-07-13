@@ -12,7 +12,7 @@ recent build of emacs from
 
 * The Python system spellcheck to ispell protocol package from
 [here](https://github.com/ruda/macspell) so that emacs will have
-access to the system-wide spelling infrastructure from within emacs.
+access to the system-wide spelling infrastructure.
 
 * This collection of packages via ELPA/MELPA/Marmalade (using M-x
   package-list-packages):
