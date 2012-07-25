@@ -13,7 +13,7 @@ $ brew install emacs --cocoa --srgb
 
 In addition, one should install:
 
-* The Python system spellcheck to ispell protocol package from
+* The Python OS X system spellcheck to ispell protocol package from
 [here](https://github.com/ruda/macspell) so that emacs will have
 access to the system-wide spelling infrastructure.
 
@@ -62,3 +62,8 @@ access to the system-wide spelling infrastructure.
 which pretties up the mode-line quite a bit.
 
 * Also, watch the video on [Expand region](https://github.com/emacsmirror/expand-region).
+
+If one intends to hack clojure, Common Lisp or elisp, it would be wise
+to have a look at the
+[paredit cheat sheet](http://www.emacswiki.org/pics/static/PareditCheatsheet.png).
+Do not fight paredit. Paredit is your friend.
