@@ -6,9 +6,12 @@ enormous quantity of elisp that had accumulated in my dotfiles since
 analogues in the base emacs or in one of the many excellent packages
 available via the ELPA-compatible repositories.
 
-If you would like to test out this configuration, I recommend the most
-recent build of emacs from
-[emacsformacosx](http://emacsformacosx.com/). In addition, one should install:
+If you would like to test out this configuration, I recommend
+installing emacs using this brew recipe:
+
+$ brew install emacs --cocoa --srgb
+
+In addition, one should install:
 
 * The Python system spellcheck to ispell protocol package from
 [here](https://github.com/ruda/macspell) so that emacs will have
@@ -26,6 +29,7 @@ access to the system-wide spelling infrastructure.
     * coffee-mode-20120522
     * css-mode-1.0
     * elisp-slime-nav-20111111
+    * expand-region
     * find-file-in-project-20110903
     * go-mode-20120613
     * haml-mode-20101019
@@ -51,11 +55,10 @@ access to the system-wide spelling infrastructure.
     * starter-kit-js-20110930
     * starter-kit-lisp-20120504
     * starter-kit-ruby-20120128
-    * twilight-theme-20120412
     * undo-tree-20120511
     * yaml-mode-20120227
 
-* [Expand region](https://github.com/emacsmirror/expand-region), which
-  doesn't seem to be in ELPA yet. It's worth watching video to see how
-  handy this is.
+* [Powerline](http://emacsfodder.github.com/blog/2012/06/20/powerline-enhanced/),
+which pretties up the mode-line quite a bit.
 
+* Also, watch the video on [Expand region](https://github.com/emacsmirror/expand-region).

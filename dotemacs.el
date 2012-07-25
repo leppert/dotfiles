@@ -4,17 +4,15 @@
 ;; X and bash, to which end I've customized all three.
 ;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; PATHS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; PATHS
 
 (add-to-list 'load-path "~/.emacs.d/")
-(let ((default-directory "~/.emacs.d/vendor/"))
-      (normal-top-level-add-to-load-path '("expand-region" "geiser-0.1.4")))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; OS INTEGRATION
 
 ;; Make sure the path is set up for programs launched
 ;; via Spotlight, the Dock, Finder, &c, by running:
 ;; $ defaults write $HOME/.MacOSX/environment PATH "$PATH"
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; OS INTEGRATION
 
 ;; use OS X's Spotlight for M-x locate
 (setq locate-make-command-line (lambda (s) `("mdfind" "-name" ,s)))
@@ -33,59 +31,95 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ENCODING
 
-;; always utf-8
+;; always utf-8, all the time
+(setq locale-coding-system 'utf-8)
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; APPEARANCE
 
-;; typeface
-(add-to-list 'default-frame-alist '(font . "Menlo-12"))
-
 ;; turn off splash screen messages
-(setq inhibit-startup-echo-area-message t)
-(setq inhibit-startup-screen t)
+(setq inhibit-startup-echo-area-message t
+      inhibit-startup-screen t)
 
-;; drop useless chrome
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(fringe-mode -1)
-(scroll-bar-mode -1)
-
-;; global line numbering
-(setq linum-format "%4d ")
-(global-linum-mode 1)
-
-;; but no highlight on the current line, nor word highlight on page
-;(remove-hook 'prog-mode-hook 'esk-turn-on-hl-line-mode)
-(remove-hook 'prog-mode-hook 'idle-highlight-mode)
-(global-hl-line-mode -1)
-
-;; slightly more generous line-spacing
-(setq-default line-spacing 2)
+;; drop window chrome
+(setq menu-bar-mode -1
+      tool-bar-mode -1
+      fringe-mode -1
+      scroll-bar-mode -1)
 
 ;; speed up screen re-paint
 (setq redisplay-dont-pause t)
 
+;; typeface and spacing
+(set-default-font "-apple-DejaVu_Sans_Mono-medium-normal-normal-*-13-*-*-*-m-0-iso10646-1")
+(setq-default line-spacing 3)
+
+;; Show me empty lines after buffer end
+(set-default 'indicate-empty-lines t)
+
+;; Always display line & column numbers in mode-line
+(setq line-number-mode t
+      column-number-mode t)
+
+;; global line numbering
+(setq linum-format " %5i ")
+(global-linum-mode 0)
+
+(setq visible-bell t
+      font-lock-maximum-decoration t
+      color-theme-is-global t
+      truncate-partial-width-windows nil)
+
+;; no highlight on the current line, nor word highlight on page
+(remove-hook 'prog-mode-hook 'idle-highlight-mode)
+(global-hl-line-mode -1)
+
 ;; bring on the color theme
-(load-theme 'twilight t)
+;;(load-theme 'twilight t)
+(color-theme-sanityinc-tomorrow-night)
+
+;; powerline gives a much aesthetically improved mode line, the look
+;; of which is stolen from vi.
+(require 'powerline)
+(setq powerline-arrow-shape 'arrow)
+(setq powerline-color1 "grey22")
+(setq powerline-color2 "grey30")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; INPUT MAPPING
 
-;; make M-up and M-down the same as C-up and C-down, the
-;; former matching my bashrc's input settings
-(global-set-key (kbd "<M-up>") 'backward-paragraph)
-(global-set-key (kbd "<M-down>") 'forward-paragraph)
-
+;;;; Normalize with Mac OS X
 ;; command + up/down/left/right = file start/end, line start/end
-;; in other OS X input boxes
 (global-set-key (kbd "<s-up>") 'beginning-of-buffer)
 (global-set-key (kbd "<s-down>") 'end-of-buffer)
 (global-set-key (kbd "<s-left>") 'move-beginning-of-line)
 (global-set-key (kbd "<s-right>") 'move-end-of-line)
+(setq shift-select-mode t) ;; shift-select mode
+(delete-selection-mode 1)  ;; typing after selection kills the region
 
-;; normalize with bash's C-w, use Mac-style command-X for cut region
+;; Mac OS X-style font-size control
+(define-key global-map (kbd "s-+") 'text-scale-increase)
+(define-key global-map (kbd "s--") 'text-scale-decrease)
+
+;; undo-tree-mode with aliases that match OS X undo/redo
+(require 'undo-tree)
+(global-undo-tree-mode 1)
+(defalias 'redo 'undo-tree-redo)
+(global-set-key (kbd "s-z") 'undo) ; command+z
+(global-set-key (kbd "s-Z") 'redo) ; command+shift+z
+
+;;;; Normalize with the shell
+;; make M-up and M-down the same as C-up and C-down, the
+;; former matching my inputrc's input settings
+(global-set-key (kbd "<M-up>") 'backward-paragraph)
+(global-set-key (kbd "<M-down>") 'forward-paragraph)
+
+;; like in the shell
+(global-set-key (kbd "C-d") 'delete-forward-char)
+
+;; normalize with inputrc's C-w, use Mac-style command-X for cut region
 (global-set-key (kbd "C-w") 'backward-kill-word)
 
 ;; add readline's backward-kill-line
@@ -95,7 +129,7 @@
   (kill-line 0))
 (global-set-key (kbd "C-x <C-backspace>") 'backward-kill-line)
 
-;; prefer regexp in my backward search, bash-compatible binding
+;; prefer regexp in my backward search, inputrc-compatible binding
 (global-set-key (kbd "^R") 'isearch-backward-regexp)
 
 ;; command-f, the default OSX search keybinding => regexp forward search
@@ -109,41 +143,30 @@
 (global-set-key [M-s-up] 'windmove-up)
 (global-set-key [M-s-down] 'windmove-down)
 
-;; enhanced completion library
+;; enhanced completion library, same as inputrc binding
 (global-set-key (kbd "M-/") 'hippie-expand)
 
-;; shift-select mode, normalized with Mac OS X
-(setq shift-select-mode t)
-
-;; Mac OS X-style font-size control
-(define-key global-map (kbd "s-+") 'text-scale-increase)
-(define-key global-map (kbd "s--") 'text-scale-decrease)
-
-;; typing after selection kills the region
-(delete-selection-mode 1)
-
-;; undo-tree-mode with aliases that match OS X undo/redo
-(require 'undo-tree)
-(global-undo-tree-mode 1)
-(defalias 'redo 'undo-tree-redo)
-(global-set-key (kbd "s-z") 'undo) ; command+z
-(global-set-key (kbd "s-Z") 'redo) ; command+shift+z
-
-;; expand-region is super handy
+;; expand-region is super handy while editing code
 (require 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)
 
-;; OS X Lion fullscreen mode, not yet in cocoa emacs HEAD
-;;(global-set-key (kbd "M-RET") 'ns-toggle-fullscreen)
+;; OS X Lion fullscreen mode
+(global-set-key (kbd "M-RET") 'ns-toggle-fullscreen)
+
+;; turn off default safety mode
+(put 'downcase-region 'disabled nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; PROGRAMMING/LANGUAGES
 
+;; TODO move over prog-mode-hook to hightlight XXX in code from old
+;; config
+
 ;; tell me about my whitespace, clean it up on save
 (setq-default show-trailing-whitespace t)
+(whitespace-mode)
 (add-hook 'before-save-hook
           'whitespace-cleanup
           nil t)
-(whitespace-mode)
 
 ;; four space tabs in general
 (setq-default tab-width 4)
@@ -167,10 +190,13 @@
 ;(set-face-background 'ac-selection-face "#8cd0d3")
 ;(set-face-foreground 'ac-selection-face "#1f1f1f")
 
-;; compile shortcut
+;; command-k compile shortcut
 (define-key global-map (kbd "s-k") 'compile)
 
-;; two space tabs in coffee
+;; C-; to comment/un-comment, mnemonic of lisp comment
+(global-set-key (kbd "C-;") 'comment-or-uncomment-region)
+
+;;two space tabs in coffee
 (defun coffee-custom ()
   "coffee-mode-hook"
  (set (make-local-variable 'tab-width) 2))
@@ -178,7 +204,8 @@
   '(lambda() (coffee-custom)))
 
 ;; adjust paredit's key bindings so they don't override my
-;; bash compatible preferences from above
+;; bash compatible preferences from above, plus add some
+;; brace matching sugar across all modes
 (eval-after-load 'paredit
   '(progn
      ;; not just in lisp mode(s)
@@ -203,8 +230,15 @@
           (lambda ()
             (setq inferior-lisp-program "lein repl")))
 
-;;;; sbcl with quicklisp under slime
+;;;; hack to get font-lock mode in the clojure repl
+(add-hook 'slime-repl-mode-hook
+          (lambda ()
+            (font-lock-mode nil)
+            (clojure-font-lock-setup)
+            (font-lock-mode t)))
+
 ;; XXX temporarily commented out because it fights with clojure
+;;;; sbcl with quicklisp under slime
 ;;(setq inferior-lisp-program "/usr/local/bin/sbcl --noinform")
 ;;(load (expand-file-name "~/quicklisp/slime-helper.el"))
 
@@ -216,13 +250,14 @@
 (eval-after-load "auto-complete"
    '(add-to-list 'ac-modes 'slime-repl-mode))
 
-;; no need to show trailing whitepsace in the repl
+;; no need to highlight trailing whitepsace in the repl
 (add-hook 'slime-repl-mode-hook (lambda () (setq show-trailing-whitespace nil)))
 
 ;; local copy of the HyperSpec for CL
 (setq common-lisp-hyperspec-root
       "file:/Users/jack/lisp/HyperSpec/")
 
+;;;; Haskell preferences
 (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
 
@@ -241,4 +276,4 @@
 (setq ispell-extra-args '("--encoding=utf8" "--auto-lang=yes"))
 
 ;; TODO bring in latex customizations from old .emacs
-
+;; TODO bring in org-mode customizations from old .emacs
