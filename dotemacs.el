@@ -64,29 +64,27 @@
 (setq line-number-mode t
       column-number-mode t)
 
-;; global line numbering
-(setq linum-format " %5i ")
-(global-linum-mode 0)
-
+;; some general look and feel things
 (setq visible-bell t
       font-lock-maximum-decoration t
       color-theme-is-global t
       truncate-partial-width-windows nil)
+
+;; global line numbering
+(setq linum-format " %5i ")
+(global-linum-mode 0)
 
 ;; no highlight on the current line, nor word highlight on page
 (remove-hook 'prog-mode-hook 'idle-highlight-mode)
 (global-hl-line-mode -1)
 
 ;; bring on the color theme
-;;(load-theme 'twilight t)
 (color-theme-sanityinc-tomorrow-night)
 
 ;; powerline gives a much aesthetically improved mode line, the look
 ;; of which is stolen from vi.
 (require 'powerline)
-(setq powerline-arrow-shape 'arrow)
-(setq powerline-color1 "grey22")
-(setq powerline-color2 "grey30")
+(powerline-default)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; INPUT MAPPING
 
@@ -96,23 +94,31 @@
 (global-set-key (kbd "<s-down>") 'end-of-buffer)
 (global-set-key (kbd "<s-left>") 'move-beginning-of-line)
 (global-set-key (kbd "<s-right>") 'move-end-of-line)
-(setq shift-select-mode t) ;; shift-select mode
-(delete-selection-mode 1)  ;; typing after selection kills the region
+
+(setq shift-select-mode t) ; shift-select mode
+(delete-selection-mode 1)  ; typing after selection kills the region
 
 ;; Mac OS X-style font-size control
 (define-key global-map (kbd "s-+") 'text-scale-increase)
 (define-key global-map (kbd "s--") 'text-scale-decrease)
+
+;; alt-click for mouse-2, command-click for mouse-3
+;; broken?
+(setq mac-emulate-three-button-mouse t)
+
+;; fn+option+delete = kill word to the right in OS X inputs
+;; (iterm2 ignores the option modifier)
+(define-key global-map (kbd "<M-kp-delete>") 'paredit-forward-kill-word)
 
 ;; undo-tree-mode with aliases that match OS X undo/redo
 (require 'undo-tree)
 (global-undo-tree-mode 1)
 (defalias 'redo 'undo-tree-redo)
 (global-set-key (kbd "s-z") 'undo) ; command+z
-(global-set-key (kbd "s-Z") 'redo) ; command+shift+z
+(global-set-key (kbd "s-Z") 'redo) ; shift+command+z
 
 ;;;; Normalize with the shell
-;; make M-up and M-down the same as C-up and C-down, the
-;; former matching my inputrc's input settings
+;; make M-up and M-down the same as C-up and C-down
 (global-set-key (kbd "<M-up>") 'backward-paragraph)
 (global-set-key (kbd "<M-down>") 'forward-paragraph)
 
@@ -150,23 +156,13 @@
 (require 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)
 
-;; OS X Lion fullscreen mode
-(global-set-key (kbd "M-RET") 'ns-toggle-fullscreen)
+;; OS X Lion fullscreen mode command-return
+(global-set-key (kbd "<s-return>") 'ns-toggle-fullscreen)
 
-;; turn off default safety mode
+;; turn off safety mode
 (put 'downcase-region 'disabled nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; PROGRAMMING/LANGUAGES
-
-;; TODO move over prog-mode-hook to hightlight XXX in code from old
-;; config
-
-;; tell me about my whitespace, clean it up on save
-(setq-default show-trailing-whitespace t)
-(whitespace-mode)
-(add-hook 'before-save-hook
-          'whitespace-cleanup
-          nil t)
 
 ;; four space tabs in general
 (setq-default tab-width 4)
@@ -193,8 +189,25 @@
 ;; command-k compile shortcut
 (define-key global-map (kbd "s-k") 'compile)
 
-;; C-; to comment/un-comment, mnemonic of lisp comment
+;; C-; to comment/un-comment, mnemonic is lisp comment char
 (global-set-key (kbd "C-;") 'comment-or-uncomment-region)
+
+;; prog-mode-hook to hightlight XXX and BUG in code
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (font-lock-add-keywords
+             nil
+             '(("\\<\\(XXX\\|BUG\\)" 1 font-lock-warning-face prepend)))))
+
+;; tell me about my whitespace, clean it up on save
+(setq-default show-trailing-whitespace t)
+(whitespace-mode)
+(add-hook 'before-save-hook
+          'whitespace-cleanup
+          nil t)
+
+;; but not during eshell sessions
+(add-hook 'eshell-mode-hook (lambda () (setq show-trailing-whitespace nil)))
 
 ;;two space tabs in coffee
 (defun coffee-custom ()
@@ -203,25 +216,38 @@
 (add-hook 'coffee-mode-hook
   '(lambda() (coffee-custom)))
 
-;; adjust paredit's key bindings so they don't override my
-;; bash compatible preferences from above, plus add some
-;; brace matching sugar across all modes
+;; adjust paredit's key bindings so they don't override
+;; my preferred navigation keys, plus add some brace
+;; matching sugar across all modes
 (eval-after-load 'paredit
   '(progn
+     ;; fights with my preferred navigation keys
+     (dolist (binding (list (kbd "M-<up>") (kbd "M-<down>") (kbd "C-M-<left>") (kbd "C-M-<right>")))
+       (define-key paredit-mode-map binding nil))
+
      ;; not just in lisp mode(s)
+     (global-set-key (kbd "C-M-<left>") 'backward-sexp)
+     (global-set-key (kbd "C-M-<right>") 'forward-sexp)
+
      (global-set-key (kbd "M-(") 'paredit-wrap-round)
      (global-set-key (kbd "M-[") 'paredit-wrap-square)
      (global-set-key (kbd "M-{") 'paredit-wrap-curly)
 
      (global-set-key (kbd "M-)") 'paredit-close-round-and-newline)
      (global-set-key (kbd "M-]") 'paredit-close-square-and-newline)
-     (global-set-key (kbd "M-}") 'paredit-close-curly-and-newline)
+     (global-set-key (kbd "M-}") 'paredit-close-curly-and-newline)))
 
-     ;; fights with my preferred navigation keys
-     (dolist (binding (list (kbd "M-<up>") (kbd "M-<down>")))
-       (define-key paredit-mode-map binding nil))))
+;; TODO bind these
+;; C-M-right (paredit-forward)
+;; C-M-left  (paredit-backward)
+;; or sexp forward/backward?
 
-;;;; geiser for racket
+;; C-) and C-( for slurp
+;; C-} and C-{ for barf
+;; (this (is-a test) of-something)
+
+
+;;;; geiser for racket, why not in package manager?
 ;(require 'geiser)
 ;(setq geiser-active-implementations '(racket))
 
