@@ -12,22 +12,21 @@ a magnifier (move by words and paragraphs instead of characters and
 lines), and control+option does something similar (move by "units of
 code", a sexp in Lisp, other syntactic constructs in other languages).
 
-Note: that one generally should not move very far using any form of
-arrow navigation. The preferred method of jumping around inside a file
-in emacs is to use ctrl-s to search forward or ctrl-r to search
-backward.
+Note: one generally should not move very far using any form of arrow
+navigation. The preferred method of jumping around inside a file in
+emacs is to use ctrl-s to search forward or ctrl-r to search backward.
 
 | Key           | emacs                     | shell/inputrc      | OSX
 |:--------------|:-------------------------:|:------------------:|------:|
 | Left/Right             | Left/right character    | *         | *
 | Up/Down                | Up/Down character       | *         | *
 | Option-Left/Right      | Left/right word         | *         | *
-| Option-Up/Down         | Up/Down paragraph       | *         | X
-| Ctrl-Option-Left/Right | Left/right unit of code | *         | *
-| Command-Left/Right     | Begin/End line          | *         | X
-| Command-Up/Down        | Begin/End document      | *         | X
-| fn-Left/Right          | Begin/End document      | *         | X
-| fn-Up/Down             | Up/Down Page            | *         | X
+| Option-Up/Down         | Up/Down paragraph       | *         | *
+| Ctrl-Option-Left/Right | Left/right unit of code | *         | X
+| Command-Left/Right     | Begin/End line          | *         | *
+| Command-Up/Down        | Begin/End document      | *         | *
+| fn-Left/Right          | Begin/End document      | *         | *
+| fn-Up/Down             | Up/Down Page            | *         | *
 | command-option-l/r/u/d | Switch visible buffer   | X         | X
 | Delete            | Delete char left          | *              | *
 | fn+Delete         | Delete word left          | *              | *
