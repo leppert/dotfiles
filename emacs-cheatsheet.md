@@ -23,11 +23,11 @@ emacs is to use ctrl-s to search forward or ctrl-r to search backward.
 | Option-Left/Right      | Left/right word         | *         | *
 | Option-Up/Down         | Up/Down paragraph       | *         | *
 | Ctrl-Option-Left/Right | Left/right unit of code | *         | X
-| Command-Left/Right     | Begin/End line          | *         | *
-| Command-Up/Down        | Begin/End document      | *         | *
-| fn-Left/Right          | Begin/End document      | *         | *
-| fn-Up/Down             | Up/Down Page            | *         | *
-| command-option-l/r/u/d | Switch visible buffer   | X         | X
+| Command-Left/Right     | Begin/End line          | X         | *
+| Command-Up/Down        | Begin/End document      | X         | *
+| fn-Left/Right          | Begin/End document      | X         | *
+| fn-Up/Down             | Up/Down Page            | X         | *
+| command-option-l/r/u/d | Switch visible buffer   | *         | X
 | Delete            | Delete char left          | *              | *
 | fn+Delete         | Delete word left          | *              | *
 | fn+option+Delete  | Delete word right         | *              | *

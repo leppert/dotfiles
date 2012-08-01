@@ -2,7 +2,8 @@
 ;;
 ;; I like my emacs to share as many behaviors as possible with OS
 ;; X and bash, to which end I've customized all three.
-;;
+
+(require 'cl) ;; Common Lisp gear
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; PATHS
 
@@ -17,17 +18,13 @@
 ;; use OS X's Spotlight for M-x locate
 (setq locate-make-command-line (lambda (s) `("mdfind" "-name" ,s)))
 
+;; use MacSpell until ns-spell-checker support is ported to cocoa emacs
+;; https://github.com/ruda/macspell
+(setq ispell-program-name "~/bin/macspell.py")
+(setq ispell-extra-args '("--encoding=utf8" "--auto-lang=yes"))
+
 ;; I'll be sending files from the command line
 (server-start)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; PACKAGE MANAGER
-
-;; more (and more up-to-date) packages than plain ELPA
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/")
-             '("marmalade" . "http://marmalade-repo.org/packages/"))
-(package-initialize)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ENCODING
 
@@ -37,6 +34,33 @@
 (set-keyboard-coding-system 'utf-8)
 (set-selection-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; PACKAGES
+
+;; more (and more up-to-date) packages than plain ELPA
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/")
+             '("marmalade" . "http://marmalade-repo.org/packages/"))
+(package-initialize)
+
+;; this approached is taken from Prelude
+(defvar jackrusher-packages '(ac-slime auto-complete clojure-mode clojurescript-mode coffee-mode color-theme-sanityinc-tomorrow css-mode elisp-slime-nav expand-region find-file-in-project go-mode haml-mode haskell-mode idle-highlight-mode ido-ubiquitous inf-ruby js2-mode magit magithub markdown-mode molokai-theme paredit popup powerline ruby-block ruby-electric ruby-end ruby-mode slime slime-ritz smex starter-kit starter-kit-eshell starter-kit-js starter-kit-lisp starter-kit-ruby twilight-theme undo-tree yaml-mode))
+
+(defun jackrusher-packages-installed-p ()
+  (loop for p in jackrusher-packages
+        when (not (package-installed-p p)) do (return nil)
+        finally (return t)))
+
+(unless (jackrusher-packages-installed-p)
+  ;; check for new packages (package versions)
+  (message "%s" "Emacs is now refreshing its package database...")
+  (package-refresh-contents)
+  (message "%s" " done.")
+  ;; install the missing packages
+  (dolist (p jackrusher-packages)
+    (when (not (package-installed-p p))
+      (package-install p))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; APPEARANCE
 
@@ -117,6 +141,14 @@
 (global-set-key (kbd "s-z") 'undo) ; command+z
 (global-set-key (kbd "s-Z") 'redo) ; shift+command+z
 
+;; command-f, the default OSX search keybinding => regexp forward search
+(global-set-key (kbd "s-f") 'isearch-forward-regexp)
+;; command-r, forward-replace
+(global-set-key (kbd "s-r") 'query-replace-regexp)
+
+;; OS X Lion fullscreen mode command-return
+(global-set-key (kbd "<s-return>") 'ns-toggle-fullscreen)
+
 ;;;; Normalize with the shell
 ;; make M-up and M-down the same as C-up and C-down
 (global-set-key (kbd "<M-up>") 'backward-paragraph)
@@ -138,11 +170,6 @@
 ;; prefer regexp in my backward search, inputrc-compatible binding
 (global-set-key (kbd "^R") 'isearch-backward-regexp)
 
-;; command-f, the default OSX search keybinding => regexp forward search
-(global-set-key (kbd "s-f") 'isearch-forward-regexp)
-;; command-r, forward-replace
-(global-set-key (kbd "s-r") 'query-replace-regexp)
-
 ;; moving between windows, normalize with iTerm2 and (mod'd) tmux
 (global-set-key [M-s-left] 'windmove-left)
 (global-set-key [M-s-right] 'windmove-right)
@@ -155,9 +182,6 @@
 ;; expand-region is super handy while editing code
 (require 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)
-
-;; OS X Lion fullscreen mode command-return
-(global-set-key (kbd "<s-return>") 'ns-toggle-fullscreen)
 
 ;; turn off safety mode
 (put 'downcase-region 'disabled nil)
@@ -189,7 +213,7 @@
 ;; command-k compile shortcut
 (define-key global-map (kbd "s-k") 'compile)
 
-;; C-; to comment/un-comment, mnemonic is lisp comment char
+;; C-; to comment/un-comment, mnemonic is Lisp comment char
 (global-set-key (kbd "C-;") 'comment-or-uncomment-region)
 
 ;; prog-mode-hook to hightlight XXX and BUG in code
@@ -237,16 +261,6 @@
      (global-set-key (kbd "M-]") 'paredit-close-square-and-newline)
      (global-set-key (kbd "M-}") 'paredit-close-curly-and-newline)))
 
-;; TODO bind these
-;; C-M-right (paredit-forward)
-;; C-M-left  (paredit-backward)
-;; or sexp forward/backward?
-
-;; C-) and C-( for slurp
-;; C-} and C-{ for barf
-;; (this (is-a test) of-something)
-
-
 ;;;; geiser for racket, why not in package manager?
 ;(require 'geiser)
 ;(setq geiser-active-implementations '(racket))
@@ -264,6 +278,7 @@
             (font-lock-mode t)))
 
 ;; XXX temporarily commented out because it fights with clojure
+;; (*really* irritating)
 ;;;; sbcl with quicklisp under slime
 ;;(setq inferior-lisp-program "/usr/local/bin/sbcl --noinform")
 ;;(load (expand-file-name "~/quicklisp/slime-helper.el"))
@@ -279,7 +294,7 @@
 ;; no need to highlight trailing whitepsace in the repl
 (add-hook 'slime-repl-mode-hook (lambda () (setq show-trailing-whitespace nil)))
 
-;; local copy of the HyperSpec for CL
+;; local copy of the HyperSpec for Common Lisp
 (setq common-lisp-hyperspec-root
       "file:/Users/jack/lisp/HyperSpec/")
 
@@ -295,11 +310,6 @@
 (autoload 'markdown-mode "markdown-mode" "Mode for editing Markdown documents" t)
 (setq auto-mode-alist
       (cons '("\\.\\(md\\|markdown\\)$" . markdown-mode) auto-mode-alist))
-
-;; use MacSpell until ns-spell-checker support is ported to cocoa emacs
-;; https://github.com/ruda/macspell
-(setq ispell-program-name "~/bin/macspell.py")
-(setq ispell-extra-args '("--encoding=utf8" "--auto-lang=yes"))
 
 ;; TODO bring in latex customizations from old .emacs
 ;; TODO bring in org-mode customizations from old .emacs
